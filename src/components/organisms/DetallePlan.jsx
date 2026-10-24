@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Button from 'react-bootstrap/Button'
 import SelectorCantidad from '../molecules/SelectorCantidad'
 import MensajeFormulario from '../atoms/MensajeFormulario'
+import TarjetaComplemento from '../molecules/TarjetaComplemento'
 import { formatearPrecio } from '../../utils/formato'
 
 function DetallePlan({ plan, onAgregarCarrito }) {
@@ -21,6 +22,12 @@ function DetallePlan({ plan, onAgregarCarrito }) {
     onAgregarCarrito(plan, cantidad)
     setMensaje('Agregaste ' + cantidad + ' sesión(es) de "' + plan.nombre + '" al carrito.')
     setCantidad(1)
+  }
+
+  // El complemento se agrega como un producto aparte del carrito (1 unidad por clic)
+  const agregarComplemento = () => {
+    onAgregarCarrito(plan.complemento, 1)
+    setMensaje('Agregaste "' + plan.complemento.nombre + '" al carrito.')
   }
 
   return (
@@ -55,6 +62,11 @@ function DetallePlan({ plan, onAgregarCarrito }) {
         <Button type="button" className="boton-agendar" onClick={agregar}>
           Agregar al carrito
         </Button>
+
+        {/* Los planes creados desde el Panel de Control no tienen complemento */}
+        {plan.complemento ? (
+          <TarjetaComplemento complemento={plan.complemento} onAgregar={agregarComplemento} />
+        ) : null}
 
         <MensajeFormulario texto={mensaje} tipo="exito" />
 

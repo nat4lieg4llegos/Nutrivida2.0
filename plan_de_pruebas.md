@@ -12,14 +12,14 @@
 **Comando para ejecutar:** `npm test` (o `npx vitest run` para una sola ejecución)
 <br />
 
-**Fecha de ejecución:** 19-10-2026
+**Fecha de ejecución:** 23-10-2026
 
 ## Alcance
 
 Se prueban los componentes y funcionalidades críticas de la tienda:
 
 - **Catálogo:** tarjeta de producto, favoritos y búsqueda dinámica.
-- **Compra:** cantidad de sesiones, total y carrito.
+- **Compra:** cantidad de sesiones, total, carrito y complemento recomendado de cada plan.
 - **Formularios:** validación del registro y del login.
 - **Seguridad:** acceso privado al Panel de Control (sesión con localStorage).
 - **CRUD en memoria:** crear, editar y eliminar planes.
@@ -49,12 +49,15 @@ Todas las pruebas siguen el patrón **AAA**: Arrange (preparar), Act (ejecutar),
 | PU-015 | App (ruta 404) | Debe mostrar la página 404 en una ruta que no existe | Sin preparación especial | Abrir /ruta-que-no-existe | Se muestra "Página no encontrada" | ✅ Pasa |
 | PU-016 | App (carrito) | Debe agregar un plan al carrito y mostrar el total | Abrir /producto | Presionar "Agregar al carrito" y luego "Carrito (1)" | Se abre el carrito con el total $35.000 | ✅ Pasa |
 | PU-017 | SeccionResenas | Debe mostrar la siguiente reseña al presionar la flecha derecha | Renderizar el carrusel (3 reseñas visibles) | Presionar la flecha derecha | La reseña de Fernanda queda visible y la de Camila se oculta | ✅ Pasa |
+| PU-018 | DetallePlan (complemento) | Debe mostrar la proteína en polvo como complemento del plan deportivo | Tomar el plan deportivo de los datos | Renderizar el detalle del plan | Se ve "Proteína en polvo (1 kg)" y "$29.990" | ✅ Pasa |
+| PU-019 | DetallePlan (complemento) | Debe enviar el complemento al carrito con cantidad 1 | Renderizar el detalle del plan deportivo con una función mock | Presionar "Agregar complemento" | La función recibe el complemento y la cantidad 1 | ✅ Pasa |
+| PU-020 | DetallePlan (complemento) | No debe mostrar complemento en un plan creado desde el Panel de Control | Plan mock sin complemento | Renderizar el detalle del plan | No aparece el botón "Agregar complemento" | ✅ Pasa |
 
 ## Resultado de la ejecución
 
 ```
 Test Files  9 passed (9)
-     Tests  17 passed (17)
+     Tests  20 passed (20)
 ```
 
-Se ejecutaron 17 pruebas unitarias y las 17 pasaron. No se detectaron defectos.
+Se ejecutaron 20 pruebas unitarias y las 20 pasaron. No se detectaron defectos.

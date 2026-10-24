@@ -6,9 +6,9 @@ function TablaCarrito({ carrito, onQuitar }) {
     <Table responsive className="tabla-nutrivida">
       <thead>
         <tr>
-          <th>Plan</th>
+          <th>Producto</th>
           <th>Precio</th>
-          <th>Sesiones</th>
+          <th>Cantidad</th>
           <th>Subtotal</th>
           <th></th>
         </tr>

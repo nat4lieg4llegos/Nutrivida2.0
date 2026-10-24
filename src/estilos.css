@@ -2181,3 +2181,75 @@ main a.ir-carrito {
         font-size: 14px;
     }
 }
+
+/* ---------- Complemento recomendado (detalle del plan) ---------- */
+.complemento-card {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding: 18px 20px;
+    border: 1px dashed #9bb38a;
+    border-radius: 16px;
+    background-color: #f4f8ef;
+}
+
+.complemento-etiqueta {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    font-weight: bold;
+    color: #60804d;
+    margin-bottom: 10px;
+}
+
+.complemento-cuerpo {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.complemento-icono {
+    font-size: 34px;
+    line-height: 1;
+}
+
+.complemento-texto h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #35572d;
+    font-size: 19px;
+    margin-bottom: 6px;
+}
+
+.complemento-texto p {
+    font-size: 15px;
+    margin-bottom: 0;
+}
+
+.complemento-pie {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.complemento-pie strong {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #35572d;
+    font-size: 22px;
+}
+
+.boton-complemento {
+    padding: 8px 20px;
+    border: 2px solid #355f2d;
+    border-radius: 25px;
+    background-color: transparent;
+    color: #355f2d;
+    font-weight: bold;
+}
+
+.boton-complemento:hover,
+.boton-complemento:focus {
+    background-color: #355f2d;
+    border-color: #355f2d;
+    color: white;
+}

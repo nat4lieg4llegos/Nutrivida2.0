@@ -65,6 +65,7 @@ src/
 1. **Favoritos:** cada tarjeta del catálogo se puede marcar o desmarcar (`BotonFavorito`).
 2. **Búsqueda dinámica:** filtra los planes del catálogo mientras se escribe (`Productos`).
 3. **Carrito de compras:** agregar planes con su cantidad de sesiones, quitar, total y compra simulada (`App`, `DetallePlan`, `Carrito`).
+   Cada plan ofrece además un **complemento recomendado** a la venta (ej: proteína en polvo en el plan deportivo, carne de soya en el plan vegano) que se agrega al carrito como producto aparte (`TarjetaComplemento`).
 4. **Carrusel de reseñas:** flechas para avanzar o retroceder (`SeccionResenas`).
 5. **Publicar reseña:** el formulario agrega la reseña nueva al carrusel (`Home`, `FormularioResena`).
 6. **Sesión del administrador:** login, cierre de sesión y menú que cambia (`App`, `Header`).
@@ -90,4 +91,4 @@ Campos de contexto agregados al registro: **peso (kg)**, **estatura (cm)** y **o
 
 ## Pruebas
 
-17 pruebas unitarias con Vitest y React Testing Library, documentadas en [`plan_de_pruebas.md`](plan_de_pruebas.md).
+20 pruebas unitarias con Vitest y React Testing Library, documentadas en [`plan_de_pruebas.md`](plan_de_pruebas.md).
