@@ -3,7 +3,7 @@
 Migración del sitio de la Clínica Nutricional NutriVida (HTML + CSS + JS) a React con Vite, manteniendo el diseño de la primera entrega.
 
 **Asignatura:** DSY1104 Desarrollo Fullstack II — Experiencia 2
-**Estudiante:** Natalie Gallegos
+**Estudiante:** Natalie Gallegos  y Renato Le Fort
 
 ## Cómo instalar y ejecutar
 
