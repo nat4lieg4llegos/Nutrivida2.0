@@ -1,6 +1,6 @@
 # Plan de Pruebas Unitarias — NutriVida (React)
 
-**Estudiante:** Natalie Gallegos
+   **Integrantes:** Natalie Gallegos y Renato Le Fort
 <br />
 
 **Asignatura:** DSY1104 Desarrollo Fullstack II — Experiencia 2
