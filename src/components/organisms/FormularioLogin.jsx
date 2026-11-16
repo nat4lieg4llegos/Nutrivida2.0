@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import MensajeFormulario from '../atoms/MensajeFormulario'
 import { credencialesAdmin } from '../../data/admin'
+import AuthService from '../../services/AuthService'
 import { esCorreoValido } from '../../utils/validaciones'
 
 function FormularioLogin({ onIniciarSesion }) {
@@ -25,9 +26,20 @@ function FormularioLogin({ onIniciarSesion }) {
       return
     }
 
-    // Credenciales estáticas del administrador
-    if (usuario.trim() === credencialesAdmin.usuario && contrasena === credencialesAdmin.contrasena) {
-      onIniciarSesion('admin')
+    // Administrador: el backend valida las credenciales y entrega el token JWT
+    if (usuario.trim() === credencialesAdmin.usuario) {
+      AuthService.login(usuario.trim(), contrasena)
+        .then((response) => {
+          localStorage.setItem('token', response.data.token)
+          onIniciarSesion('admin')
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 401) {
+            setMensaje('Usuario o contraseña de administrador incorrectos.')
+          } else {
+            setMensaje('No se pudo conectar con el servidor. Revisa que el backend esté encendido.')
+          }
+        })
       return
     }
 

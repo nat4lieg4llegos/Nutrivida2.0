@@ -1,9 +1,19 @@
 import { Link } from 'react-router-dom'
 import DetallePlan from '../components/organisms/DetallePlan'
 
-function Producto({ planes, planSeleccionado, onAgregarCarrito }) {
+function Producto({ planes, cargando, planSeleccionado, onAgregarCarrito }) {
   // Si no se eligió un plan (o fue eliminado), se muestra el primero del catálogo
   const plan = planes.find((p) => p.id === planSeleccionado) || planes[0]
+
+  if (cargando) {
+    return (
+      <main className="detalle-producto">
+        <section className="tarjeta-mensaje">
+          <p>Cargando plan...</p>
+        </section>
+      </main>
+    )
+  }
 
   if (!plan) {
     return (

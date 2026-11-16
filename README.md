@@ -7,12 +7,34 @@ Migración del sitio de la Clínica Nutricional NutriVida (HTML + CSS + JS) a Re
 
 ## Cómo instalar y ejecutar
 
+1. Encender **MySQL** en XAMPP y ejecutar el backend **nutrivida-backend** (Spring Boot, puerto 8080). Flyway crea la base de datos con los 4 planes.
+2. En la carpeta de este proyecto:
+
 ```bash
 npm install
 npm run dev
 ```
 
-Abrir la dirección que muestra la terminal (normalmente http://localhost:5173).
+Abrir la dirección que muestra la terminal (http://localhost:5173). El backend solo acepta peticiones desde esa dirección (CORS).
+
+## Conexión con el backend (Integración REST)
+
+El catálogo y el Panel de Control ya no usan datos en memoria: hacen el CRUD contra la API REST de Spring Boot con **axios**.
+
+| Archivo | Qué hace |
+| :--- | :--- |
+| `src/services/ProductoService.js` | Llama a `http://localhost:8080/api/v1/productos` (GET, POST, PUT, DELETE) |
+| `src/services/AuthService.js` | Inicia sesión en `POST /api/v1/auth/login` y recibe el token JWT |
+| `src/utils/adaptarPlan.js` | Convierte cada producto del backend en un plan para React (imagen y complemento) |
+
+| Acción en la página | Petición al backend |
+| :--- | :--- |
+| Abrir Productos o el detalle | `GET /api/v1/productos` |
+| Agregar plan (Panel de Control) | `POST /api/v1/productos` con token |
+| Guardar cambios (Panel de Control) | `PUT /api/v1/productos/{id}` con token |
+| Eliminar (Panel de Control) | `DELETE /api/v1/productos/{id}` con token |
+
+Si el backend está apagado, el catálogo muestra el mensaje "No se pudieron cargar los planes".
 
 Para ejecutar las pruebas unitarias:
 
@@ -26,7 +48,7 @@ npm test
 | :--- | :--- |
 | admin | admin |
 
-La sesión se guarda en `localStorage` (clave `sesion`), por lo que se mantiene al recargar la página hasta presionar **Cerrar sesión**.
+El backend valida el usuario y la contraseña del administrador y entrega un **token JWT** (válido 1 hora). La sesión se guarda en `localStorage` (claves `sesion` y `token`) y se mantiene al recargar la página hasta presionar **Cerrar sesión**, que borra ambas. Si el token vence, hay que cerrar sesión y volver a ingresar.
 
 ## Páginas y rutas
 
@@ -53,9 +75,10 @@ src/
 │                     FormularioPlan, TablaPlanes, TablaCarrito, FormularioPago...
 ├── pages/            Home, Productos, Producto, Login, Registro, PanelControl, Carrito, Perfil, Error404
 ├── data/             itemsMenu.js, planes.js, resenas.js, admin.js
-├── utils/            formato.js, validaciones.js, carrito.js
+├── services/         ProductoService.js, AuthService.js (axios → backend Spring Boot)
+├── utils/            formato.js, validaciones.js, carrito.js, adaptarPlan.js
 ├── assets/img/       imágenes de la primera entrega + imagen genérica para planes nuevos
-├── App.jsx           solo organiza los estados compartidos y las rutas
+├── App.jsx           organiza los estados compartidos, las rutas y la carga de planes desde el backend
 ├── main.jsx
 └── estilos.css       CSS original de la primera entrega + agregados al final
 ```
@@ -69,7 +92,7 @@ src/
 4. **Carrusel de reseñas:** flechas para avanzar o retroceder (`SeccionResenas`).
 5. **Publicar reseña:** el formulario agrega la reseña nueva al carrusel (`Home`, `FormularioResena`).
 6. **Sesión del administrador:** login, cierre de sesión y menú que cambia (`App`, `Header`).
-7. **CRUD en memoria:** crear, editar y eliminar planes desde el Panel de Control (`App`, `PanelControl`).
+7. **CRUD con el backend:** crear, editar y eliminar planes desde el Panel de Control, guardados en MySQL a través de la API REST (`App`, `PanelControl`, `ProductoService`).
 
 ## Elementos responsivos
 
@@ -91,4 +114,4 @@ Campos de contexto agregados al registro: **peso (kg)**, **estatura (cm)** y **o
 
 ## Pruebas
 
-20 pruebas unitarias con Vitest y React Testing Library, documentadas en [`plan_de_pruebas.md`](plan_de_pruebas.md).
+22 pruebas unitarias con Vitest y React Testing Library, documentadas en [`plan_de_pruebas.md`](plan_de_pruebas.md).

@@ -3,7 +3,7 @@ import AdornoTitulo from '../components/atoms/AdornoTitulo'
 import BuscadorPlanes from '../components/molecules/BuscadorPlanes'
 import ListaPlanes from '../components/organisms/ListaPlanes'
 
-function Productos({ planes, onVerDetalle }) {
+function Productos({ planes, cargando, errorCarga, onVerDetalle }) {
   const [busqueda, setBusqueda] = useState('')
 
   // Filtrado dinámico: se muestran los planes cuyo nombre o resumen contiene lo buscado
@@ -25,7 +25,13 @@ function Productos({ planes, onVerDetalle }) {
 
       <BuscadorPlanes busqueda={busqueda} onCambiarBusqueda={setBusqueda} />
 
-      <ListaPlanes planes={planesFiltrados} onVerDetalle={onVerDetalle} />
+      {/* Los planes llegan desde el backend: mientras tanto se muestra un aviso */}
+      {cargando ? <p className="catalogo-vacio">Cargando planes...</p> : null}
+      {errorCarga ? <p className="catalogo-vacio">{errorCarga}</p> : null}
+
+      {!cargando && !errorCarga ? (
+        <ListaPlanes planes={planesFiltrados} onVerDetalle={onVerDetalle} />
+      ) : null}
     </main>
   )
 }

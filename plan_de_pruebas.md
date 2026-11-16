@@ -12,7 +12,7 @@
 **Comando para ejecutar:** `npm test` (o `npx vitest run` para una sola ejecución)
 <br />
 
-**Fecha de ejecución:** 23-10-2026
+**Fecha de ejecución:** 16-11-2026
 
 ## Alcance
 
@@ -21,12 +21,15 @@ Se prueban los componentes y funcionalidades críticas de la tienda:
 - **Catálogo:** tarjeta de producto, favoritos y búsqueda dinámica.
 - **Compra:** cantidad de sesiones, total, carrito y complemento recomendado de cada plan.
 - **Formularios:** validación del registro y del login.
-- **Seguridad:** acceso privado al Panel de Control (sesión con localStorage).
-- **CRUD en memoria:** crear, editar y eliminar planes.
+- **Seguridad:** acceso privado al Panel de Control y login del administrador contra el backend (token JWT).
+- **CRUD con el backend:** listar, crear, editar y eliminar planes a través de `ProductoService` (axios).
+- **Integración:** mensaje cuando el backend no responde.
 - **Enrutamiento:** ruta comodín 404.
 - **Interacción:** carrusel de reseñas.
 
 Todas las pruebas siguen el patrón **AAA**: Arrange (preparar), Act (ejecutar), Assert (verificar).
+
+Las pruebas no necesitan el backend encendido: `ProductoService` y `AuthService` se reemplazan con `vi.mock` por un backend simulado con los mismos 4 planes que inserta Flyway.
 
 ## Casos de prueba
 
@@ -40,24 +43,26 @@ Todas las pruebas siguen el patrón **AAA**: Arrange (preparar), Act (ejecutar),
 | PU-006 | calcularTotal (carrito) | Debe sumar precio por cantidad de cada plan del carrito | Carrito mock: 2 × $35.000 y 1 × $45.000 | Llamar a `calcularTotal` | El resultado es 115000 | ✅ Pasa |
 | PU-007 | DetallePlan (carrito) | Debe enviar el plan y la cantidad al carrito | Renderizar el detalle con una función mock | Presionar "+" y luego "Agregar al carrito" | La función recibe el plan y la cantidad 2 | ✅ Pasa |
 | PU-008 | FormularioRegistro | Debe rechazar un correo que no sea gmail, outlook o duocuc | Completar todos los campos válidos con correo "ana@yahoo.com" | Presionar "Registrar" | Aparece el mensaje de dominios permitidos | ✅ Pasa |
-| PU-009 | FormularioLogin | Debe dar acceso de administrador con admin / admin | Renderizar el login con una función mock | Escribir admin / admin y enviar | La función se llama con "admin" | ✅ Pasa |
-| PU-010 | FormularioLogin | Debe rechazar una contraseña incorrecta del administrador | Renderizar el login con una función mock | Escribir admin / 1234 y enviar | No se inicia sesión y aparece un mensaje de error | ✅ Pasa |
+| PU-009 | FormularioLogin | Debe dar acceso de administrador con admin / admin y guardar el token | Renderizar el login con `AuthService` simulado | Escribir admin / admin y enviar | Se llama a `AuthService.login`, se guarda el token y la sesión es "admin" | ✅ Pasa |
+| PU-010 | FormularioLogin | Debe rechazar una contraseña incorrecta del administrador | `AuthService` simulado responde 401 | Escribir admin / 1234 y enviar | No se inicia sesión, no se guarda token y aparece el mensaje de error | ✅ Pasa |
 | PU-011 | App (ruta protegida) | Debe bloquear el Panel de Control si no hay sesión | localStorage vacío | Abrir la ruta /panel | Se muestra "Acceso restringido" | ✅ Pasa |
-| PU-012 | App (CRUD — crear) | Debe crear un plan nuevo desde el Panel de Control | Sesión "admin" en localStorage, abrir /panel | Completar el formulario y presionar "Agregar plan" | El plan aparece en la tabla y el catálogo tiene 5 planes | ✅ Pasa |
-| PU-013 | App (CRUD — eliminar) | Debe eliminar un plan desde el Panel de Control | Sesión "admin" en localStorage, abrir /panel | Presionar "Eliminar" en el primer plan | El plan desaparece y quedan 3 planes | ✅ Pasa |
-| PU-014 | App (CRUD — editar) | Debe editar el precio de un plan desde el Panel de Control | Sesión "admin" en localStorage, abrir /panel | Presionar "Editar", cambiar el precio a 39990 y guardar | La tabla muestra "$39.990" | ✅ Pasa |
+| PU-012 | App (CRUD — crear, POST) | Debe crear un plan nuevo desde el Panel de Control | Sesión "admin", backend simulado con 4 planes, abrir /panel | Completar el formulario y presionar "Agregar plan" | Se llama a `createProducto` y el catálogo tiene 5 planes | ✅ Pasa |
+| PU-013 | App (CRUD — eliminar, DELETE) | Debe eliminar un plan desde el Panel de Control | Sesión "admin", backend simulado con 4 planes, abrir /panel | Presionar "Eliminar" en el primer plan | Se llama a `deleteProducto(1)` y quedan 3 planes | ✅ Pasa |
+| PU-014 | App (CRUD — editar, PUT) | Debe editar el precio de un plan desde el Panel de Control | Sesión "admin", backend simulado con 4 planes, abrir /panel | Presionar "Editar", cambiar el precio a 39990 y guardar | Se llama a `updateProducto` y la tabla muestra "$39.990" | ✅ Pasa |
 | PU-015 | App (ruta 404) | Debe mostrar la página 404 en una ruta que no existe | Sin preparación especial | Abrir /ruta-que-no-existe | Se muestra "Página no encontrada" | ✅ Pasa |
 | PU-016 | App (carrito) | Debe agregar un plan al carrito y mostrar el total | Abrir /producto | Presionar "Agregar al carrito" y luego "Carrito (1)" | Se abre el carrito con el total $35.000 | ✅ Pasa |
 | PU-017 | SeccionResenas | Debe mostrar la siguiente reseña al presionar la flecha derecha | Renderizar el carrusel (3 reseñas visibles) | Presionar la flecha derecha | La reseña de Fernanda queda visible y la de Camila se oculta | ✅ Pasa |
 | PU-018 | DetallePlan (complemento) | Debe mostrar la proteína en polvo como complemento del plan deportivo | Tomar el plan deportivo de los datos | Renderizar el detalle del plan | Se ve "Proteína en polvo (1 kg)" y "$29.990" | ✅ Pasa |
 | PU-019 | DetallePlan (complemento) | Debe enviar el complemento al carrito con cantidad 1 | Renderizar el detalle del plan deportivo con una función mock | Presionar "Agregar complemento" | La función recibe el complemento y la cantidad 1 | ✅ Pasa |
 | PU-020 | DetallePlan (complemento) | No debe mostrar complemento en un plan creado desde el Panel de Control | Plan mock sin complemento | Renderizar el detalle del plan | No aparece el botón "Agregar complemento" | ✅ Pasa |
+| PU-021 | App (catálogo, GET) | Debe cargar los planes del catálogo desde el backend | Backend simulado con 4 planes | Abrir /productos | Se llama a `getAllProductos` y se ven 4 tarjetas | ✅ Pasa |
+| PU-022 | App (manejo de errores) | Debe mostrar un mensaje si el backend no responde | Backend simulado apagado (error de red) | Abrir /productos | Aparece "No se pudieron cargar los planes" y no se muestran tarjetas | ✅ Pasa |
 
 ## Resultado de la ejecución
 
 ```
 Test Files  9 passed (9)
-     Tests  20 passed (20)
+     Tests  22 passed (22)
 ```
 
-Se ejecutaron 20 pruebas unitarias y las 20 pasaron. No se detectaron defectos.
+Se ejecutaron 22 pruebas unitarias y las 22 pasaron. No se detectaron defectos.

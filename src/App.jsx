@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 
 import Header from './components/organisms/Header'
@@ -14,14 +14,39 @@ import Carrito from './pages/Carrito'
 import Perfil from './pages/Perfil'
 import Error404 from './pages/Error404'
 
-import { planes as planesIniciales, imagenGenerica } from './data/planes'
+import ProductoService from './services/ProductoService'
+import { adaptarPlan, archivoImagenGenerica } from './utils/adaptarPlan'
 
 function App() {
   // Estados compartidos entre varias páginas
-  const [planes, setPlanes] = useState(planesIniciales)
+  const [planes, setPlanes] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [errorCarga, setErrorCarga] = useState('')
   const [planSeleccionado, setPlanSeleccionado] = useState(1)
   const [carrito, setCarrito] = useState([])
   const [sesion, setSesion] = useState(localStorage.getItem('sesion'))
+
+  // ---------- Planes desde el backend (GET /api/v1/productos) ----------
+  useEffect(() => {
+    cargarPlanes()
+  }, [])
+
+  const cargarPlanes = () => {
+    return ProductoService.getAllProductos()
+      .then((response) => {
+        // Si no hay productos el backend responde 204 sin contenido
+        const lista = response.data ? response.data : []
+        setPlanes(lista.map(adaptarPlan))
+        setErrorCarga('')
+      })
+      .catch((error) => {
+        console.log('Error al cargar los planes:', error)
+        setErrorCarga('No se pudieron cargar los planes. Revisa que el backend esté encendido.')
+      })
+      .finally(() => {
+        setCargando(false)
+      })
+  }
 
   // ---------- Sesión (localStorage) ----------
   const iniciarSesion = (tipo) => {
@@ -31,6 +56,7 @@ function App() {
 
   const cerrarSesion = () => {
     localStorage.removeItem('sesion')
+    localStorage.removeItem('token')
     setSesion(null)
   }
 
@@ -55,17 +81,22 @@ function App() {
     setCarrito([])
   }
 
-  // ---------- CRUD de planes (en memoria) ----------
+  // ---------- CRUD de planes contra el backend (POST, PUT, DELETE) ----------
+  // Cada operación vuelve a pedir la lista para mostrar lo que quedó en la base de datos
   const agregarPlan = (datos) => {
-    setPlanes([...planes, { ...datos, id: Date.now(), imagen: imagenGenerica }])
+    return ProductoService.createProducto({ ...datos, imagen: archivoImagenGenerica })
+      .then(() => cargarPlanes())
   }
 
   const editarPlan = (id, datos) => {
-    setPlanes(planes.map((plan) => (plan.id === id ? { ...plan, ...datos } : plan)))
+    const plan = planes.find((p) => p.id === id)
+    return ProductoService.updateProducto(id, { ...datos, imagen: plan.archivoImagen })
+      .then(() => cargarPlanes())
   }
 
   const eliminarPlan = (id) => {
-    setPlanes(planes.filter((plan) => plan.id !== id))
+    return ProductoService.deleteProducto(id)
+      .then(() => cargarPlanes())
   }
 
   return (
@@ -74,11 +105,11 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/productos" element={<Productos planes={planes} onVerDetalle={setPlanSeleccionado} />} />
-        <Route path="/producto" element={<Producto planes={planes} planSeleccionado={planSeleccionado} onAgregarCarrito={agregarAlCarrito} />} />
+        <Route path="/productos" element={<Productos planes={planes} cargando={cargando} errorCarga={errorCarga} onVerDetalle={setPlanSeleccionado} />} />
+        <Route path="/producto" element={<Producto planes={planes} cargando={cargando} planSeleccionado={planSeleccionado} onAgregarCarrito={agregarAlCarrito} />} />
         <Route path="/login" element={<Login sesion={sesion} onIniciarSesion={iniciarSesion} />} />
         <Route path="/registro" element={<Registro />} />
-        <Route path="/panel" element={<PanelControl sesion={sesion} planes={planes} onAgregarPlan={agregarPlan} onEditarPlan={editarPlan} onEliminarPlan={eliminarPlan} />} />
+        <Route path="/panel" element={<PanelControl sesion={sesion} planes={planes} errorCarga={errorCarga} onAgregarPlan={agregarPlan} onEditarPlan={editarPlan} onEliminarPlan={eliminarPlan} />} />
         <Route path="/carrito" element={<Carrito carrito={carrito} onQuitar={quitarDelCarrito} onVaciar={vaciarCarrito} />} />
         <Route path="/perfil" element={<Perfil sesion={sesion} />} />
         <Route path="*" element={<Error404 />} />
